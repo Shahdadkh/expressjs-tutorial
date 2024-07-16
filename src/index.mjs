@@ -1,6 +1,8 @@
-import express from "express";
+import express, { request, response } from "express";
 
 const app = express();
+
+app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 
@@ -21,13 +23,8 @@ app.get("/", (request, response) => {
   response.send({ msg: "hello world" });
 });
 
-// app.get("/api/users", (request, response) => {
-//   return response.send(mochUsers);
-// });
-
 //localhost/api/users?filter=username&value=gfa
 app.get("/api/users", (request, response) => {
-  console.log(request.query);
   const {
     query: { filter, value },
   } = request;
@@ -45,6 +42,54 @@ app.get("/api/users/:id", (request, response) => {
   const findUser = mochUsers.find((user) => user.id === parsedId);
   if (!findUser) return response.sendStatus(404);
   return response.send(findUser);
+});
+
+app.post("/api/users", (request, response) => {
+  const { body } = request;
+  const newUser = { id: mochUsers[mochUsers.length - 1].id + 1, ...body };
+  mochUsers.push(newUser);
+  return response.status(201).send(newUser);
+});
+
+app.put("/api/users/:id", (request, response) => {
+  const {
+    body,
+    params: { id },
+  } = request;
+  const parsedId = parseInt(id);
+  if (isNaN(parsedId)) return response.sendStatus(400);
+
+  const findUserIndex = mochUsers.findIndex((user) => user.id === parsedId);
+  if (findUserIndex === -1) return response.sendStatus(404);
+  mochUsers[findUserIndex] = { id: parsedId, ...body };
+  return response.sendStatus(200);
+});
+
+app.patch("/api/users/:id", (request, response) => {
+  const {
+    body,
+    params: { id },
+  } = request;
+  const parsedId = parseInt(id);
+  if (isNaN(parsedId)) return response.sendStatus(400);
+
+  const findUserIndex = mochUsers.findIndex((user) => user.id === parsedId);
+  if (findUserIndex === -1) return response.sendStatus(404);
+  mochUsers[findUserIndex] = { ...mochUsers[findUserIndex], ...body };
+  return response.sendStatus(200);
+});
+
+app.delete("/api/users/:id", (request, response) => {
+  const {
+    params: { id },
+  } = request;
+  const parsedId = parseInt(id);
+  if (isNaN(parsedId)) return response.sendStatus(400);
+
+  const findUserIndex = mochUsers.findIndex((user) => user.id === parsedId);
+  if (findUserIndex === -1) return response.sendStatus(404);
+  mochUsers.splice(findUserIndex, 1);
+  return response.sendStatus(200);
 });
 
 app.listen(PORT, () => {
