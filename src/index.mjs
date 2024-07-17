@@ -1,4 +1,5 @@
-import express, { request, response } from "express";
+import express from "express";
+import { query, validationResult } from "express-validator";
 
 const app = express();
 app.use(express.json());
@@ -41,16 +42,26 @@ app.get("/", (request, response) => {
 });
 
 //localhost/api/users?filter=username&value=gfa
-app.get("/api/users", (request, response) => {
-  const {
-    query: { filter, value },
-  } = request;
-  if (filter && value)
-    return response.send(
-      mochUsers.filter((user) => user[filter].includes(value))
-    );
-  return response.send(mochUsers);
-});
+app.get(
+  "/api/users",
+  query("filter")
+    .isString()
+    .notEmpty()
+    .withMessage("Must not be empty")
+    .isLength({ min: 3, max: 10 })
+    .withMessage("Must be at least 3-10 characters"),
+  (request, response) => {
+    console.log(validationResult(request));
+    const {
+      query: { filter, value },
+    } = request;
+    if (filter && value)
+      return response.send(
+        mochUsers.filter((user) => user[filter].includes(value))
+      );
+    return response.send(mochUsers);
+  }
+);
 
 app.get("/api/users/:id", resolveIndexByUserId, (request, response) => {
   const { findUserIndex } = request;
