@@ -15,7 +15,10 @@ export const createUserValidationSchema = {
       errorMessage: "Username must be string",
     },
   },
-  displayname: {
+  displayName: {
+    notEmpty: true,
+  },
+  password: {
     notEmpty: true,
   },
 };
