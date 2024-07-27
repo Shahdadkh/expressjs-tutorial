@@ -9,6 +9,7 @@ import { createUserValidationSchema } from "../utils/ValidationSchemas.mjs";
 import { mochUsers } from "../utils/constants.mjs";
 import { resolveIndexByUserId } from "../utils/middlewares.mjs";
 import { User } from "../mongoose/schemas/user.mjs";
+import { hashPassword } from "../utils/helpers.mjs";
 
 const router = Router();
 
@@ -28,6 +29,7 @@ router.get(
         console.log(err);
         throw err;
       }
+      console.log(`Inside Session Store Get`);
       console.log(sessionData);
     });
     //console.log(validationResult(request));
@@ -58,6 +60,7 @@ router.post(
 
     const data = matchedData(request);
     console.log(data);
+    data.password = hashPassword(data.password);
     const newUser = new User(data);
     try {
       const savedUser = await newUser.save();
