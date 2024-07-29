@@ -1,6 +1,7 @@
 import { Router } from "express";
 import passport from "passport";
-import "../strategies/local-strategy.mjs";
+//import "../strategies/local-strategy.mjs";
+import "../strategies/discord-strategy.mjs";
 
 const router = Router();
 
@@ -27,5 +28,16 @@ router.post("/api/auth/logout", (request, response) => {
     response.sendStatus(200);
   });
 });
+
+router.get("/api/auth/discord", passport.authenticate("discord"));
+router.get(
+  "/api/auth/discord/redirect",
+  passport.authenticate("discord"),
+  (request, response) => {
+    console.log(request.session);
+    console.log(request.user);
+    response.sendStatus(200);
+  }
+);
 
 export default router;
